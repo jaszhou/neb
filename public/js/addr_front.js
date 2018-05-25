@@ -56,12 +56,32 @@ var dappAddress = "n1fiVnaZhUtbpyZiJ87JGKx3qwmp3fUVXbU";
             $("#search").attr("disabled",false)
 
         }catch(e){
-            //alert ("Extension wallet is not installed, please install it first.")
+            alert ("Extension wallet is not installed, please install it first.")
             $("#noExtension").removeClass("hide")
         }
     }
 
-
+    function funcIntervalQuery() {
+            nebPay.queryPayInfo(serialNumber)   //search transaction result from server (result upload to server by app)
+                .then(function (resp) {
+                    var respObject = JSON.parse(resp)
+                    if (respObject.code === 1 && respObject.msg && respObject.msg.indexOf('payId') >= 0 && respObject.msg.endsWith('does not exist')) {
+                        if (!alertedInstallExtension) {
+                            alertedInstallExtension = true;
+                            alert("请确认您已经安装了星云链浏览器插件");
+                            return;
+                        }
+                    }
+                    console.log("tx result: " + resp)   //resp is a JSON string
+                    if (respObject.code === 0) {
+                        alert("钱包操作完成")
+                        clearInterval(intervalQuery)
+                    }
+                })
+                .catch(function (err) {
+                    console.log(err);
+                });
+        }
 
 function getHash(account) {
 
