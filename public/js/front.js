@@ -102,9 +102,9 @@ myneb.api.call({
     gasLimit: 2000000,
 }).then(function(tx) {
 
-    if (tx.execute_err.length > 0) {
-                throw new Error(resp.execute_err);
-    }
+    // if (tx.execute_err.length > 0) {
+    //             throw new Error(tx.execute_err);
+    // }
 
     arrs = JSON.parse(tx.result);
 
