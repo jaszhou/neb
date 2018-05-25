@@ -113,9 +113,9 @@ AddressBook.prototype = {
 						throw new Error("empty account");
 				}
 
-			if (account != AddressItem.account){
-				throw new Error("Only owner can update the address");
-			}
+			// if (account != AddressItem.account){
+			// 	throw new Error("Only owner can update the address");
+			// }
 
       AddressItem.hashcode = hashcode;
 			AddressItem.addr = addr;

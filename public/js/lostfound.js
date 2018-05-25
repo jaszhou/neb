@@ -11,19 +11,16 @@ myneb.setRequest(new HttpRequest("https://mainnet.nebulas.io"));
 var account, tx, txhash;
 
 // MainNet
-// var dappAddress = "n1fiVnaZhUtbpyZiJ87JGKx3qwmp3fUVXbU";
-var dappAddress = "n21e77pWbJxwpWL7ax9X6QXTzUPrhqah7ew";
-
-
+var dappAddress = "n1tfPDdz1g14E5DEM1xQyPbhmkZx6wPA8ZY";
 
 // TestNet
-// var dappAddress = "n1pSTa28hoydSfDUSHAbwoFG8FhZZdjzDbA";
+// var dappAddress = "n1dsXaGQcVSnxQXsqYdH6ktCmdGSm9UWUYU";
 
 
 
     document.addEventListener("DOMContentLoaded", function() {
-        $("#search_value").attr("disabled",true)
-        $("#search").attr("disabled",true)
+        // $("#search_value").attr("disabled",true)
+        // $("#search").attr("disabled",true)
 
         console.log("web page loaded...")
         setTimeout(checkNebpay,100);
@@ -37,6 +34,7 @@ var dappAddress = "n21e77pWbJxwpWL7ax9X6QXTzUPrhqah7ew";
         });
 
         setTimeout(getACC,100);
+
     });
 
     function getACC() {
@@ -59,32 +57,12 @@ var dappAddress = "n21e77pWbJxwpWL7ax9X6QXTzUPrhqah7ew";
             $("#search").attr("disabled",false)
 
         }catch(e){
-            alert ("Extension wallet is not installed, please install it first.")
+            //alert ("Extension wallet is not installed, please install it first.")
             $("#noExtension").removeClass("hide")
         }
     }
 
-    function funcIntervalQuery() {
-            nebPay.queryPayInfo(serialNumber)   //search transaction result from server (result upload to server by app)
-                .then(function (resp) {
-                    var respObject = JSON.parse(resp)
-                    if (respObject.code === 1 && respObject.msg && respObject.msg.indexOf('payId') >= 0 && respObject.msg.endsWith('does not exist')) {
-                        if (!alertedInstallExtension) {
-                            alertedInstallExtension = true;
-                            alert("请确认您已经安装了星云链浏览器插件");
-                            return;
-                        }
-                    }
-                    console.log("tx result: " + resp)   //resp is a JSON string
-                    if (respObject.code === 0) {
-                        alert("钱包操作完成")
-                        clearInterval(intervalQuery)
-                    }
-                })
-                .catch(function (err) {
-                    console.log(err);
-                });
-        }
+
 
 function getHash(account) {
 
@@ -102,29 +80,97 @@ function getHash(account) {
 
 }
 
+function generateKey(p){
+    var salt = CryptoJS.lib.WordArray.random(128/8);
+    var key = CryptoJS.PBKDF2(p, salt, { keySize: 512/32, iterations: 1000 });
+    var subkey = key.toString().substring(1,16);
+    return subkey;
+}
 
-function loadTable() {
 
+function getLen() {
+
+// get len
 console.log("********* call smart contract by \"call\" *****************")
-var func = "getAll"
-// var args = "[\"" + $("#search_value").val() + "\"]"
-var args = "1"
+var func = "len"
+//var args = "[\"" + $("#search_value").val() + "\"]"
 
 window.postMessage({
-  "target": "contentscript",
-  "data":{
-      "to" : dappAddress,
-      "value" : "0",
-      "contract" : {
-          "function" : func,
-          "args" :null
-      }
-  },
-  "method": "neb_call"
+    "target": "contentscript",
+    "data":{
+        "to" : dappAddress,
+        "value" : "0",
+        "contract" : {
+            "function" : func,
+            "args" :null
+        }
+    },
+    "method": "neb_call"
 }, "*");
+
+}
+
+var arrs = [];
+
+function init() {
+        i = 0;
+
+        for(var i=0;i<arrs.length;i++){
+
+          $.create(arrs[i]);
+        }
+
+    $('.main').css('height', $('.container').height() - $('.top').height() + 'px');
 
 
 }
+
+
+myneb.api.call({
+    from: dappAddress,
+    to: dappAddress,
+    value: 0,
+    contract: {
+        function: "getAll",
+        args: null
+    },
+    gasPrice: 1000000,
+    gasLimit: 2000000,
+}).then(function(tx) {
+
+  console.log(tx.result);
+
+  arrs = JSON.parse(tx.result);
+
+    console.log(arrs);
+    console.log("len:"+arrs.length);
+
+    init();
+});
+
+
+// function loadTable() {
+//
+// console.log("********* call smart contract by \"call\" *****************")
+// var func = "getAll"
+// // var args = "[\"" + $("#search_value").val() + "\"]"
+// var args = "1"
+//
+// window.postMessage({
+//   "target": "contentscript",
+//   "data":{
+//       "to" : dappAddress,
+//       "value" : "0",
+//       "contract" : {
+//           "function" : func,
+//           "args" :null
+//       }
+//   },
+//   "method": "neb_call"
+// }, "*");
+//
+//
+// }
 
 function find(code) {
 console.log("********* call smart contract by \"call\" *****************")
@@ -186,11 +232,11 @@ $("#save").click(function() {
     var hashcode = $("#hashcode").val();
     var name = $("#name").val();
     var address = $("#address").val();
-    var phone = $("#phone").val();
-    var email = $("#email").val();
-    var others = $("#others").val();
+    var description = $("#description").val();
+    var founder = $("#founder").val();
+    var msg = $("#msg").val();
 
-    var args = "[\""+account+"\""+","+"\""+hashcode+"\""+","+ "\"" + address + "\""+","+"\""+name+"\""+","+"\""+phone+"\""+","+"\""+email+"\""+","+"\""+others+"\""+"]";
+    var args = "[\""+account+"\""+","+"\""+hashcode+"\""+","+ "\"" + address + "\""+","+"\""+name+"\""+","+"\""+description+"\""+","+"\""+founder+"\""+","+"\""+msg+"\""+"]";
     // var args = str;
 
     // console.log("str "+str);
@@ -218,11 +264,18 @@ window.addEventListener('message', function(e) {
     if (!!e.data.data.account){
         //document.getElementById("accountAddress").innerHTML= "Account address: " + e.data.data.account;
         $("#acct").text("Account address: " + e.data.data.account);
-        $("#hash").text("Hashcode: " + getHash(e.data.data.account));
-        $("#hashcode").val(getHash(e.data.data.account));
+        $("#hash").text("Your Address Hashcode: " + getHash(e.data.data.account));
+
+        // generateKey
+        // get a random key for item
+        $("#hashcode").val(generateKey(e.data.data.account));
         $("#_id").val(e.data.data.account);
 
-        console.log("get hashcode: "+getHash(e.data.data.account));
+        //set default address hash
+        $("#address").val(getHash(e.data.data.account));
+
+
+        console.log("get hashcode: "+generateKey(e.data.data.account));
         //$("#search_value").value(e.data.data.account);
 
         // account=JSON.stringify(e.data.data.account);
@@ -230,7 +283,7 @@ window.addEventListener('message', function(e) {
 
 
         // get address for current account
-        find(getHash(e.data.data.account));
+        // find(getHash(e.data.data.account));
 
     }
     if (!!e.data.data.receipt){
@@ -263,7 +316,7 @@ window.addEventListener('message', function(e) {
 
             }
 
-            if (!!result.account){
+            if (!!result.hashcode){
                 $(".add_banner").addClass("hide");
                 $(".result_faile").addClass("hide");
 
@@ -275,9 +328,9 @@ window.addEventListener('message', function(e) {
                 $("#hashcode").val(result.hashcode);
                 $("#name").val(result.name);
                 $("#address").val(result.addr);
-                $("#phone").val(result.phone);
-                $("#email").val(result.email);
-                $("#others").val(result.others);
+                $("#description").val(result.description);
+                $("#founder").val(result.founder);
+                $("#msg").val(result.msg);
 
 
 
@@ -303,9 +356,10 @@ window.addEventListener('message', function(e) {
 
 $.extend({
     create: function(data) {
-        var e = $("<div class=\"row\"><div>" + data.key + "</div><div class=right>——" + data.value + "</div></div>");
+        var e = $("<div class=\"row\"><div>" + data.hashcode + "</div><div class=right>——" + data.name + "</div></div>");
 
-        $(theTable).find('tbody').append( "<tr><td id='code'>"+data.key+"</td><td>"+data.value+"</td><td>"+data.poll+"</td><td><button id=vote onclick=\"vote2('"+data.key+"')\">vote</button></td></tr>" );
+        // $(theTable).find('tbody').append( "<tr><td id='code'>"+data.hashcode+"</td><td>"+data.name+"</td><td>"+data.description+"</td><td><button id=vote onclick=\"update('"+data.hashcode+"')\">update</button></td></tr>" );
+        $(theTable).find('tbody').append( "<tr><td id='code'>"+data.hashcode+"</td><td>"+data.name+"</td><td>"+data.description+"</td><td>"+data.founder+"</td><td>"+data.msg+"</td></tr>" );
 
         return e;
     },

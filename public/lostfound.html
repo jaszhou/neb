@@ -6,11 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
 
-    <title>Address Book - your universal address control center</title>
+    <title>Lost & Found - find your precious </title>
 
    <script src="js/nebulas.min.js"></script>
    <script type="text/javascript" src="./dist/nebPay.js"></script>
-
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -29,17 +28,18 @@
 
     <!-- First Container -->
     <div class="container-fluid bg-3 text-center">
-      <h2 class="margin">Nebulas AddressBook v3</h3>
+      <img src="nebulasx60.png"><img src="lf.png">
 
     </div>
 
 
 
-          <div class="container-fluid bg-2 ">
-            <div class="panel-heading">Why do you need Nebulas AddressBook?</div>
-            <div class="panel-body">You can manage your address with AddressBook and send the hashcode to anyone you trust such as government agents.
-              When you change your contact details via AddressBook, the agents will get the latest update via the unique hashcode.
-              You save the hassle to contact each agencies for address change and you are controlling your contact information completely by yourself.
+          <div class="container-fluid bg-1 ">
+            <div class="panel-heading">What is Lost & Found?</div>
+            <div class="panel-body"> You can register your precious belongings here and the information will be saved in Nebulas blockchain permanently.
+              Once you have register the item, you will receive a unique hashcode. Mark the hashcode on your item such as a waterbottle.
+              In case you lose the item and lucky someone find it, the finder may leave you a message on the blockchain.
+              You may say a big THANK-YOU to the finder or even send the finder some NAS token as reward.
             </div>
           </div>
 
@@ -54,11 +54,8 @@
         </div>
 
           <div class="container-fluid bg-1">
-            <div class="panel-heading">Contact information:</div>
+            <div class="panel-heading">Register a new item:</div>
             <div class="panel-body">
-
-
-
  <div id=new >
   <div class="form-group">
     Account:<input type="text" class="form-control"
@@ -69,40 +66,65 @@
     </input>
     Name:<input type="text" class="form-control" placeholder="Name" name="Name" id=name>
     </input>
-    Address:<input type="text" class="form-control"
+    Address: <font size="2">this is the unique hashcode of your contact address, please refer to the <a href='http://skyscreening.com/addressbook.html#'>Nebulas Addressbook</a></font>
+    <input type="text" class="form-control"
       placeholder="Address" name="Address" id=address>
     </input>
-    Phone:<input type="text" class="form-control"
-      placeholder="Phone" name="Phone" id=phone>
+    Description:<input type="text" class="form-control"
+      placeholder="Description" name="description" id=description>
     </input>
-    Email:<input type="text" class="form-control"
-      placeholder="Email" name="Email" id=email>
+    Founder: <font size="2">If you find something, you can leave your name here. Otherwise,leave it as blank.</font><input type="text" class="form-control"
+      placeholder="Finder" name="finder" id=founder>
     </input>
-    Others:<input type="text" class="form-control"
-      placeholder="Others" name="Others" id=others>
+    Message: <font size="2">Leave a message to the owner or leave it as blank.</font><input type="text" class="form-control"
+      placeholder="Leave a message" name="msg" id=msg>
     </input>
 
   </div>
 
   <a id=save href="#" class="btn btn-default btn-lg">
-    <span class="glyphicon glyphicon-update"></span> Update
+    <span class="glyphicon glyphicon-update"></span> Register
   </a>
 
-      <div>Note: only the account owner can update the contact information! </div>
+      <div>Note: only the account owner can update the item information! </div>
 
   </div>
 
 </div>
 
 </div>
+
+<div class="container-fluid bg-3">
+  <div class="panel-heading">My items:</div>
+  <div class="panel-body">
+
+    <div id=list >
+      <table id=theTable class="table table-striped">
+        <thead>
+          <tr>
+            <th>Item HashCode</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Finder</th>
+            <th>Finder Message</th>
+          </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 
   <div class="container-fluid bg-3">
         <div class="noExtension hide" id="noExtension">
             NOTE: Please install <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a>  to use the DApp
         </div>
 
-        <div class="search">
-            <input id="search_value" type="text" placeholder="find address by hashcode">
+        <div class="search form-control">
+            <input id="search_value" type="text" placeholder="find lost item by hashcode">
             <button id=search>search</button>
         </div>
 
@@ -118,15 +140,10 @@
             Failed to find the address.
         </div>
 
-        <div class="add_banner hide">
-            <input type="text" id="add_value" placeholder="input blockchain name for this token">
-            <button id="push">submit</button>
 
-
-            </div>
     </div>
 </div>
-    <script src="js/addr_front.js"></script>
+    <script src="js/lostfound.js"></script>
 
 
   </body>
