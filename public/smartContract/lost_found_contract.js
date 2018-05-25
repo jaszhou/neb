@@ -69,13 +69,14 @@ LostFound.prototype = {
         myItem.account = Blockchain.transaction.from;
 
         var input_account = account.trim();
+        var hashcode = hashcode.trim();
         if (input_account === "") {
             throw new Error("empty account");
         }
 
-        if (account != myItem.account) {
-            throw new Error("Only owner can update the address");
-        }
+        // if (account != myItem.account) {
+        //     throw new Error("Only owner can update the address");
+        // }
 
         myItem.hashcode = hashcode;
         myItem.addr = addr;
@@ -83,6 +84,21 @@ LostFound.prototype = {
         myItem.description = description;
         myItem.founder = founder;
         myItem.msg = msg;
+
+        // check if item exists
+        // var item = this.inventory.get(hashcode);
+        // if(item){ // exists
+        //
+        //   // this.inventory.del(myItem.hashcode);
+        //   this.inventory.del(myItem.hashcode);
+        // }
+        // // }else{ // only update instead add a new one
+        //
+        //
+        //   this.inventory.put(myItem.hashcode, myItem);
+        //   this.arrayMap.put(this.size, myItem.hashcode);
+        //   this.size += 1;
+        // }
 
         this.inventory.put(myItem.hashcode, myItem);
         this.arrayMap.put(this.size, myItem.hashcode);

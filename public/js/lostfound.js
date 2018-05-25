@@ -11,10 +11,10 @@ myneb.setRequest(new HttpRequest("https://mainnet.nebulas.io"));
 var account, tx, txhash;
 
 // MainNet
-var dappAddress = "n1tfPDdz1g14E5DEM1xQyPbhmkZx6wPA8ZY";
+var dappAddress = "n1xn2u5faqvVcQwz32gHMRMXUp62TzqkXy3";
 
 // TestNet
-// var dappAddress = "n1dsXaGQcVSnxQXsqYdH6ktCmdGSm9UWUYU";
+// var dappAddress = "n1zw55jeKbrKHSZJToH6wC1kPkbUDXxSoes";
 
 
 
@@ -359,7 +359,7 @@ $.extend({
         var e = $("<div class=\"row\"><div>" + data.hashcode + "</div><div class=right>——" + data.name + "</div></div>");
 
         // $(theTable).find('tbody').append( "<tr><td id='code'>"+data.hashcode+"</td><td>"+data.name+"</td><td>"+data.description+"</td><td><button id=vote onclick=\"update('"+data.hashcode+"')\">update</button></td></tr>" );
-        $(theTable).find('tbody').append( "<tr><td id='code'>"+data.hashcode+"</td><td>"+data.name+"</td><td>"+data.description+"</td><td>"+data.founder+"</td><td>"+data.msg+"</td></tr>" );
+        $(theTable).find('tbody').append( "<tr><td id='code'>"+"<a href='#' onclick=\"find('"+data.hashcode+"')\">"+data.hashcode+"</a></td><td>"+data.name+"</td><td>"+data.description+"</td><td>"+data.founder+"</td><td>"+data.msg+"</td></tr>" );
 
         return e;
     },
