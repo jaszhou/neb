@@ -9,6 +9,11 @@ myneb.setRequest(new HttpRequest("https://mainnet.nebulas.io"));
 // myneb.setRequest(new HttpRequest("https://testnet.nebulas.io"));
 
 var account, tx, txhash;
+var serialNumber;
+var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
+var nebPay = new NebPay();
+
+var callbackUrl = NebPay.config.mainnetUrl;   //如果合约在主网,则使用这个
 
 // MainNet
 var dappAddress = "n1xn2u5faqvVcQwz32gHMRMXUp62TzqkXy3";
@@ -225,36 +230,102 @@ $("#add").click(function() {
     $("#add_value").val("")
 })
 
+// $("#save").click(function() {
+//     console.log("********* call smart contract \"sendTransaction\" *****************")
+//     var func = "save";
+//     var account = $("#_id").val();
+//     var hashcode = $("#hashcode").val();
+//     var name = $("#name").val();
+//     var address = $("#address").val();
+//     var description = $("#description").val();
+//     var founder = $("#founder").val();
+//     var msg = $("#msg").val();
+//
+//     var args = "[\""+account+"\""+","+"\""+hashcode+"\""+","+ "\"" + address + "\""+","+"\""+name+"\""+","+"\""+description+"\""+","+"\""+founder+"\""+","+"\""+msg+"\""+"]";
+//     // var args = str;
+//
+//     // console.log("str "+str);
+//     console.log("args "+args);
+//
+//     window.postMessage({
+//         "target": "contentscript",
+//         "data":{
+//             "to" : dappAddress,
+//             "value" : "0",
+//             "contract" : {
+//                 "function" : func,
+//                 "args" : args
+//             }
+//         },
+//         "method": "neb_sendTransaction"
+//     }, "*");
+// })
+
+
 $("#save").click(function() {
-    console.log("********* call smart contract \"sendTransaction\" *****************")
-    var func = "save";
-    var account = $("#_id").val();
-    var hashcode = $("#hashcode").val();
-    var name = $("#name").val();
-    var address = $("#address").val();
-    var description = $("#description").val();
-    var founder = $("#founder").val();
-    var msg = $("#msg").val();
+        var to = dappAddress;
+        var value = "0";
+        var callFunction = "save"
+        //var callArgs = "[\"" + $("#search_value").val() + "\",\"" + $("#add_value").val() + "\"]"
+        // var arg1 = $("#search_value").val(),
+        //     arg2 = $("#add_value").val();
+        // var callArgs = JSON.stringify([arg1, arg2]);
 
-    var args = "[\""+account+"\""+","+"\""+hashcode+"\""+","+ "\"" + address + "\""+","+"\""+name+"\""+","+"\""+description+"\""+","+"\""+founder+"\""+","+"\""+msg+"\""+"]";
-    // var args = str;
 
-    // console.log("str "+str);
-    console.log("args "+args);
+        console.log("********* call smart contract \"sendTransaction\" *****************")
+        var account = $("#_id").val();
+        var hashcode = $("#hashcode").val();
+        var address = $("#address").val();
+        var name = $("#name").val();
+        var description = $("#description").val();
+        var founder = $("#founder").val();
+        var msg = $("#msg").val();
 
-    window.postMessage({
-        "target": "contentscript",
-        "data":{
-            "to" : dappAddress,
-            "value" : "0",
-            "contract" : {
-                "function" : func,
-                "args" : args
-            }
-        },
-        "method": "neb_sendTransaction"
-    }, "*");
-})
+        var callArgs = JSON.stringify([account,hashcode,address,name,description,founder,msg]);
+
+        // var args = "[\""+account+"\""+","+"\""+hashcode+"\""+","+ "\"" + address + "\""+","+"\""+name+"\""+","+"\""+description+"\""+","+"\""+founder+"\""+","+"\""+msg+"\""+"]";
+        // var args = str;
+
+        // console.log("str "+str);
+        console.log("args "+callArgs);
+
+
+        serialNumber = nebPay.call(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+            listener: cbPush,       //设置listener, 处理交易返回信息
+            callback: callbackUrl
+        });
+        intervalQuery = setInterval(function () {
+            funcIntervalQuery();
+        }, 10000);
+    });
+    var intervalQuery
+    function funcIntervalQuery() {
+        var options = {
+            callback: callbackUrl
+        }
+        nebPay.queryPayInfo(serialNumber,options)   //search transaction result from server (result upload to server by app)
+            .then(function (resp) {
+                console.log("tx result: " + resp)   //resp is a JSON string
+                var respObject = JSON.parse(resp)
+                if(respObject.code === 0){
+                    clearInterval(intervalQuery);
+                    // alert(`set ${$("#search_value").val()} succeed!`);
+                }
+            })
+            .catch(function (err) {
+                console.log(err);
+            });
+    }
+    function cbPush(resp) {
+        console.log("response of push: " + JSON.stringify(resp))
+        var respString = JSON.stringify(resp);
+        if(respString.search("rejected by user") !== -1){
+            clearInterval(intervalQuery)
+            alert(respString)
+        }else if(respString.search("txhash") !== -1){
+            //alert("wait for tx result: " + resp.txhash)
+        }
+    }
 
 
 // listen message from contentscript
