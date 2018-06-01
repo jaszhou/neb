@@ -198,6 +198,8 @@ $("#search").click(function(){
            console.log("error:" + err.message)
        })
 
+       getFound($("#search_value").val());
+
 })
 
 function find(hashcode) {
