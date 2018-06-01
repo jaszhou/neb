@@ -19,6 +19,7 @@
 
 
 
+
     </head>
 
 <body class="bg">
@@ -28,7 +29,7 @@
 
     <!-- First Container -->
     <div class="container-fluid bg-3 text-center">
-      <img src="nebulasx60.png"><img src="lf.png">
+      <img align="left" src="nebulasx60.png"><img align="middle" src="lf.png">
 
     </div>
 
@@ -40,9 +41,29 @@
               Once you have register the item, you will receive a unique hashcode. Mark the hashcode on your item such as a waterbottle.
               In case you lose the item and lucky someone find it, the finder may leave you a message on the blockchain.
               You may say a big THANK-YOU to the finder or even send the finder some NAS token as reward.
-            </div>
+                </div>
           </div>
 
+          <div class="container-fluid bg-2 ">
+
+            <div class="panel-body">
+              <div class="form-group">
+
+                  <input class="form-control" id="search_value" type="text" placeholder="find lost item by hashcode" STYLE='color=black'>
+
+                  <a id=search href="#" class="btn btn-default btn-lg">
+                    <span class="glyphicon glyphicon-search"></span> Search
+                  </a>
+
+
+              </div>
+
+              <div id=fail class="result_faile hide">
+                  Failed to find the item.
+              </div>
+
+            </div>
+          </div>
 
 
           <div class="container-fluid bg-3">
@@ -78,7 +99,6 @@
     <span class="glyphicon glyphicon-update"></span> Register
   </a>
 
-      <div>Note: only the account owner can update the item information! </div>
 
   </div>
 
@@ -115,27 +135,23 @@
             NOTE: Please install <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a>  to use the DApp
         </div>
 
-        <div class="search form-control">
-            <input id="search_value" type="text" placeholder="find lost item by hashcode">
-            <button id=search>search</button>
-        </div>
 
-        <div class="result_success hide">
-            <div id=search_banner></div>
-            <p id=search_result> wait for content </p>
-            <div class="author">
-                <i><p> Author:</p> <p id=search_result_author> </p></i>
-            </div>
-        </div>
 
-        <div id=fail class="result_faile hide">
-            Failed to find the address.
-        </div>
 
+        <div class="row" >
+          <div class='col' style="text-align: center;">
+            <div>Developer: jaszhou@gmail.com</div>
+
+          </div>
+        </div>
 
     </div>
+
+
 </div>
     <script src="js/lostfound.js"></script>
+
+
 
 
   </body>

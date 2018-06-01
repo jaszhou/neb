@@ -86,23 +86,25 @@ LostFound.prototype = {
         myItem.msg = msg;
 
         // check if item exists
-        // var item = this.inventory.get(hashcode);
-        // if(item){ // exists
-        //
-        //   // this.inventory.del(myItem.hashcode);
-        //   this.inventory.del(myItem.hashcode);
-        // }
-        // // }else{ // only update instead add a new one
-        //
-        //
-        //   this.inventory.put(myItem.hashcode, myItem);
-        //   this.arrayMap.put(this.size, myItem.hashcode);
-        //   this.size += 1;
-        // }
+        var item = this.inventory.get(hashcode);
+        if(item){ // exists
 
-        this.inventory.put(myItem.hashcode, myItem);
-        this.arrayMap.put(this.size, myItem.hashcode);
-        this.size += 1;
+          // this.inventory.del(myItem.hashcode);
+          //this.inventory.del(myItem.hashcode);
+          // this.inventory.del(myItem.hashcode);
+          this.inventory.put(myItem.hashcode, myItem);
+
+        }else{ // only update instead add a new one
+
+
+          this.inventory.put(myItem.hashcode, myItem);
+          this.arrayMap.put(this.size, myItem.hashcode);
+          this.size += 1;
+        }
+
+        // this.inventory.put(myItem.hashcode, myItem);
+        // this.arrayMap.put(this.size, myItem.hashcode);
+        // this.size += 1;
 
         // this.arrayMap.put(this.size, key);
         // this.size +=1;

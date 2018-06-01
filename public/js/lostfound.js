@@ -13,10 +13,17 @@ var serialNumber;
 var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
 var nebPay = new NebPay();
 
+// account = Account.NewAccount().getAddressString();
+
+
+
+
+
 var callbackUrl = NebPay.config.mainnetUrl;   //如果合约在主网,则使用这个
 
 // MainNet
 var dappAddress = "n1xn2u5faqvVcQwz32gHMRMXUp62TzqkXy3";
+// var dappAddress = "n1k3aFJWMgX3bs66HuPSvFcKcj6dm9tztaa";
 
 // TestNet
 // var dappAddress = "n1zw55jeKbrKHSZJToH6wC1kPkbUDXxSoes";
@@ -29,18 +36,30 @@ var dappAddress = "n1xn2u5faqvVcQwz32gHMRMXUp62TzqkXy3";
 
         console.log("web page loaded...")
         setTimeout(checkNebpay,100);
-
-        myneb.api.latestIrreversibleBlock().then(function(blockData) {
-        //code
-        console.log(JSON.stringify(blockData));
-
-            $("#height").text("Current height: "+blockData.height );
-
-        });
-
         setTimeout(getACC,100);
 
     });
+
+    // listen message from contentscript
+    window.addEventListener('message', function(e) {
+        // e.detail contains the transferred data
+        console.log("recived by page:" + e + ", e.data:"+ JSON.stringify(e.data));
+        var resultString = JSON.stringify(e.data);
+
+        if (resultString.search("account") !== -1){
+            //document.getElementById("accountAddress").innerHTML= "Account address: " + e.data.data.account;
+
+            // account=JSON.stringify(e.data.data.account);
+            account=e.data.data.account;
+
+            $("#hashcode").val(generateKey(account));
+            $("#_id").val(account);
+
+            //set default address hash
+            $("#address").val(getHash(account));
+
+        }
+      });
 
     function getACC() {
         console.log("check acount")
@@ -52,6 +71,7 @@ var dappAddress = "n1xn2u5faqvVcQwz32gHMRMXUp62TzqkXy3";
                "method": "getAccount",
            }, "*");
     }
+
 
     function checkNebpay() {
         console.log("check nebpay")
@@ -93,43 +113,34 @@ function generateKey(p){
 }
 
 
-function getLen() {
 
-// get len
-console.log("********* call smart contract by \"call\" *****************")
-var func = "len"
-//var args = "[\"" + $("#search_value").val() + "\"]"
-
-window.postMessage({
-    "target": "contentscript",
-    "data":{
-        "to" : dappAddress,
-        "value" : "0",
-        "contract" : {
-            "function" : func,
-            "args" :null
-        }
-    },
-    "method": "neb_call"
-}, "*");
-
-}
 
 var arrs = [];
 
 function init() {
         i = 0;
 
+        arrs = dedup(arrs);
+
         for(var i=0;i<arrs.length;i++){
 
           $.create(arrs[i]);
+
         }
-
-    $('.main').css('height', $('.container').height() - $('.top').height() + 'px');
-
+          $('.main').css('height', $('.container').height() - $('.top').height() + 'px');
 
 }
 
+function dedup(arr) {
+	var hashTable = {};
+
+	return arr.filter(function (el) {
+		var key = JSON.stringify(el);
+		var match = Boolean(hashTable[key]);
+
+		return (match ? false : hashTable[key] = true);
+	});
+}
 
 myneb.api.call({
     from: dappAddress,
@@ -154,73 +165,94 @@ myneb.api.call({
 });
 
 
-// function loadTable() {
-//
-// console.log("********* call smart contract by \"call\" *****************")
-// var func = "getAll"
-// // var args = "[\"" + $("#search_value").val() + "\"]"
-// var args = "1"
-//
-// window.postMessage({
-//   "target": "contentscript",
-//   "data":{
-//       "to" : dappAddress,
-//       "value" : "0",
-//       "contract" : {
-//           "function" : func,
-//           "args" :null
-//       }
-//   },
-//   "method": "neb_call"
-// }, "*");
-//
-//
-// }
 
-function find(code) {
-console.log("********* call smart contract by \"call\" *****************")
-var func = "get"
-var args = "[\"" + code + "\"]"
 
-window.postMessage({
-  "target": "contentscript",
-  "data":{
-      "to" : dappAddress,
-      "value" : "0",
-      "contract" : {
-          "function" : func,
-          "args" : args
-      }
-  },
-  "method": "neb_call"
-}, "*");
-
-}
-//$(table).find('tbody').append( "<tr><td>aaaa</td></tr>" );
 
     // 搜索功能
 $("#search").click(function(){
-    // $("#search_value").val() 搜索框内的值
 
-    console.log("********* call smart contract by \"call\" *****************")
-    var func = "get"
-    var args = "[\"" + $("#search_value").val() + "\"]"
 
-    window.postMessage({
-        "target": "contentscript",
-        "data":{
-            "to" : dappAddress,
-            "value" : "0",
-            "contract" : {
-                "function" : func,
-                "args" : args
-            }
-        },
-        "method": "neb_call"
-    }, "*");
+    var from = Account.NewAccount().getAddressString();
+       var value = "0";
+       var nonce = "0"
+       var gas_price = "1000000"
+       var gas_limit = "2000000"
+       var callFunction = "get";
+       var callArgs = "[\"" + $("#search_value").val() + "\"]"; //in the form of ["args"]
+       var contract = {
+           "function": callFunction,
+           "args": callArgs
+       }
+       myneb.api.call(from,dappAddress,value,nonce,gas_price,gas_limit,contract).then(function (resp) {
+           cbSearch(resp)
+       }).catch(function (err) {
+           //cbSearch(err)
+           console.log("error:" + err.message)
+       })
 
 })
 
+function find(hashcode) {
+
+     var from = Account.NewAccount().getAddressString();
+     var value = "0";
+     var nonce = "0"
+     var gas_price = "1000000"
+     var gas_limit = "2000000"
+     var callFunction = "get";
+     var callArgs = "[\"" + hashcode + "\"]"; //in the form of ["args"]
+     var contract = {
+         "function": callFunction,
+         "args": callArgs
+     }
+     myneb.api.call(from,dappAddress,value,nonce,gas_price,gas_limit,contract).then(function (resp) {
+         cbSearch(resp)
+     }).catch(function (err) {
+         //cbSearch(err)
+         console.log("error:" + err.message)
+     })
+}
+
+//return of search,
+ function cbSearch(resp) {
+     var result = resp.result    ////resp is an object, resp.result is a JSON string
+     console.log("return of rpc call: " + JSON.stringify(result))
+     var resultString = JSON.stringify(result);
+
+     if (resultString.search('"null"') !== -1){
+         $(".add_banner").addClass("hide");
+         $(".result_success").addClass("hide");
+         $(".result_faile").removeClass("hide");
+         $("#new").removeClass("hide");
+         $("#_id").val(account);
+     }else{
+        try{
+             result = JSON.parse(result);
+           }catch (err){
+              console.log("parsing error " + err);
+           }
+
+         if (resultString.search("hashcode") !== -1){
+
+             $(".add_banner").addClass("hide");
+             $(".result_faile").addClass("hide");
+             $("#_id").val(result.account);
+             $("#hashcode").val(result.hashcode);
+             $("#name").val(result.name);
+             $("#address").val(result.addr);
+             $("#description").val(result.description);
+             $("#founder").val(result.founder);
+             $("#msg").val(result.msg);
+         } else {
+             $(".add_banner").addClass("hide");
+             $(".result_faile").addClass("hide");
+             $("#search_banner").text($("#search_value").val())
+             $("#search_result").text(result)
+             $(".result_success").removeClass("hide");
+         }
+
+     }
+ }
 
 // 添加信息功能
 $("#add").click(function() {
@@ -229,37 +261,6 @@ $("#add").click(function() {
 
     $("#add_value").val("")
 })
-
-// $("#save").click(function() {
-//     console.log("********* call smart contract \"sendTransaction\" *****************")
-//     var func = "save";
-//     var account = $("#_id").val();
-//     var hashcode = $("#hashcode").val();
-//     var name = $("#name").val();
-//     var address = $("#address").val();
-//     var description = $("#description").val();
-//     var founder = $("#founder").val();
-//     var msg = $("#msg").val();
-//
-//     var args = "[\""+account+"\""+","+"\""+hashcode+"\""+","+ "\"" + address + "\""+","+"\""+name+"\""+","+"\""+description+"\""+","+"\""+founder+"\""+","+"\""+msg+"\""+"]";
-//     // var args = str;
-//
-//     // console.log("str "+str);
-//     console.log("args "+args);
-//
-//     window.postMessage({
-//         "target": "contentscript",
-//         "data":{
-//             "to" : dappAddress,
-//             "value" : "0",
-//             "contract" : {
-//                 "function" : func,
-//                 "args" : args
-//             }
-//         },
-//         "method": "neb_sendTransaction"
-//     }, "*");
-// })
 
 
 $("#save").click(function() {
@@ -294,6 +295,9 @@ $("#save").click(function() {
             listener: cbPush,       //设置listener, 处理交易返回信息
             callback: callbackUrl
         });
+
+        console.log("serialNumber "+serialNumber);
+
         intervalQuery = setInterval(function () {
             funcIntervalQuery();
         }, 10000);
@@ -329,101 +333,16 @@ $("#save").click(function() {
 
 
 // listen message from contentscript
-window.addEventListener('message', function(e) {
-    // e.detail contains the transferred data
-    console.log("recived by page:" + e + ", e.data:"+ JSON.stringify(e.data));
-    if (!!e.data.data.account){
-        //document.getElementById("accountAddress").innerHTML= "Account address: " + e.data.data.account;
-        $("#acct").text("Account address: " + e.data.data.account);
-        $("#hash").text("Your Address Hashcode: " + getHash(e.data.data.account));
-
-        // generateKey
-        // get a random key for item
-        $("#hashcode").val(generateKey(e.data.data.account));
-        $("#_id").val(e.data.data.account);
-
-        //set default address hash
-        $("#address").val(getHash(e.data.data.account));
-
-
-        console.log("get hashcode: "+generateKey(e.data.data.account));
-        //$("#search_value").value(e.data.data.account);
-
-        // account=JSON.stringify(e.data.data.account);
-        account=e.data.data.account;
-
-
-        // get address for current account
-        // find(getHash(e.data.data.account));
-
-    }
-    if (!!e.data.data.receipt){
-        //document.getElementById("txResult").innerHTML = "Transaction Receipt\n" +  JSON.stringify(e.data.data.receipt,null,'\t');
-    }
-    if (!!e.data.data.neb_call){
-        var result = e.data.data.neb_call.result
-         console.log("return of rpc call: " + JSON.stringify(result))
-
-        if (result === 'null'){
-            $(".add_banner").addClass("hide");
-            $(".result_success").addClass("hide");
-
-            // $("#result_faile_add").text($("#search_value").val())
-            //
-            $(".result_faile").removeClass("hide");
-
-            $("#new").removeClass("hide");
-
-            $("#_id").val(account);
-
-
-        } else{
-
-            try{
-                result = JSON.parse(e.data.data.neb_call.result)
-
-
-            }catch (err){
-
-            }
-
-            if (!!result.hashcode){
-                $(".add_banner").addClass("hide");
-                $(".result_faile").addClass("hide");
-
-                // $("#current").removeClass("hide");
-
-                // $("#search_banner").text($("#search_value").val())
-                // $("#search_result").text(result.value)
-                $("#_id").val(result.account);
-                $("#hashcode").val(result.hashcode);
-                $("#name").val(result.name);
-                $("#address").val(result.addr);
-                $("#description").val(result.description);
-                $("#founder").val(result.founder);
-                $("#msg").val(result.msg);
-
-
-
-
-            } else {
-                $(".add_banner").addClass("hide");
-                $(".result_faile").addClass("hide");
-
-
-
-                $("#search_banner").text($("#search_value").val())
-                $("#search_result").text(result)
-
-
-
-                $(".result_success").removeClass("hide");
-            }
-
-        }
-
-    }
-});
+// window.addEventListener('message', function(e) {
+//     // e.detail contains the transferred data
+//     console.log("recived by page:" + e + ", e.data:"+ JSON.stringify(e.data));
+//     if (!!e.data.data.account){
+//
+//
+//
+//     }
+//
+// });
 
 $.extend({
     create: function(data) {
