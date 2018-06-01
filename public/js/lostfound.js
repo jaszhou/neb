@@ -26,7 +26,8 @@ var callbackUrl = NebPay.config.mainnetUrl;   //如果合约在主网,则使用�
  var dappAddress = "n1yo7AGteo3C7BmRWogRoKyraMJSLWSAYv9";
 
 
-// hash 788ca91fb5b2821d5f620783ab00635aa8feff568749ba3b08593bc414d223a7
+// hash 3c73838450e9cdc38a768b87ee4d1c98b2a0fbbaabb32eced5b7d31c6b8f4605
+
 // Hash 55e84350860b5165f7d6e195a3677e69aaec2892a0f26072d98dd0b5f90c9f2d
 // var dappAddress = "n1k3aFJWMgX3bs66HuPSvFcKcj6dm9tztaa";
 
@@ -129,7 +130,9 @@ function init() {
 
         for(var i=0;i<arrs.length;i++){
 
+         if(account == arrs[i].account){
           $.create(arrs[i]);
+        }
 
         }
           $('.main').css('height', $('.container').height() - $('.top').height() + 'px');
@@ -216,6 +219,8 @@ function find(hashcode) {
          //cbSearch(err)
          console.log("error:" + err.message)
      })
+
+     getFound(hashcode);
 }
 function getFound(hashcode) {
 
@@ -385,7 +390,7 @@ $("#save").click(function() {
         }else if(respString.search("txhash") !== -1){
             //alert("wait for tx result: " + resp.txhash)
 
-            $("#result").text = "Update successfully";
+            $("#result").text("Update successfully");
         }
     }
 
@@ -473,7 +478,7 @@ $.extend({
         var e = $("<div class=\"row\"><div>" + data.hashcode + "</div><div class=right>——" + data.name + "</div></div>");
 
         // $(theTable).find('tbody').append( "<tr><td id='code'>"+data.hashcode+"</td><td>"+data.name+"</td><td>"+data.description+"</td><td><button id=vote onclick=\"update('"+data.hashcode+"')\">update</button></td></tr>" );
-        $(theTable).find('tbody').append( "<tr><td id='code'>"+"<a href='#' onclick=\"find('"+data.hashcode+"');getFound('"+data.hashcode+"')\">"+data.hashcode+"</a></td><td>"+data.name+"</td><td>"+data.description+"</td></tr>" );
+        $(theTable).find('tbody').append( "<tr><td id='code'>"+"<a href='#' onclick=\"find('"+data.hashcode+"')\">"+data.hashcode+"</a></td><td>"+data.name+"</td><td>"+data.description+"</td></tr>" );
 
         return e;
     },
