@@ -35,43 +35,44 @@
 
 
 
-          <div class="container-fluid bg-1 ">
-            <div class="panel-heading">What is Lost & Found?
-              <a id=search href="userguide.html" class="btn btn-default btn-lg">
-              <span class="glyphicon glyphicon-info"></span>使用指南
-            </a>
-                          <a id=search href="found.html" class="btn btn-default btn-lg">
-                          <span class="glyphicon glyphicon-search"></span> 失物查询
-                        </a>
-                  </div>
-            <div class="panel-body"> You can register your precious belongings here and the information will be saved in Nebulas blockchain permanently.
-              Once you have register the item, you will receive a unique hashcode. Mark the hashcode on your item such as a waterbottle.
-              In case you lose the item and lucky someone find it, the finder may leave you a message on the blockchain.
-              You may say a big THANK-YOU to the finder or even send the finder some NAS token as reward.
-                </div>
+
+
+          <div class="container-fluid bg-2 ">
+
+            <div class="panel-body">
+              <div class="form-group">
+
+                  <input class="form-control" id="search_value" type="text" placeholder="find lost item by hashcode" STYLE='color=black'>
+
+                  <a id=search href="#" class="btn btn-default btn-lg">
+                    <span class="glyphicon glyphicon-search"></span> Search
+                  </a>
+
+
+              </div>
+
+              <div id=fail class="result_faile hide">
+                  Failed to find the item.
+              </div>
+
+            </div>
           </div>
 
 
-
           <div class="container-fluid bg-3">
-            <div class="panel-heading">Register a new item:</div>
+            <div class="panel-heading">Details:</div>
             <div class="panel-body">
  <div id=new >
   <div class="form-group">
-    Account: <font size="2">your current NAS wallet address</font><input type="text" class="form-control"
-      placeholder="account_id" name="_id" id="_id">
-    </input>
+
     HashCode: <font size="2">auto generated unique hashcode for item</font><input type="text" class="form-control"
-      placeholder="hashcode" name="hashcode" id="hashcode">
+      placeholder="hashcode" name="hashcode" id="hashcode" readonly>
     </input>
-    Name: <font size="2">a short name such as Water Bottle</font><input type="text" class="form-control" placeholder="Name" name="Name" id=name>
+    Name: <font size="2">a short name such as Water Bottle</font><input type="text" class="form-control" placeholder="Name" name="Name" id=name readonly>
     </input>
-    Address: <font size="2">this is the unique hashcode of your contact address, please refer to the <a href='http://skyscreening.com/addressbook.html#'>Nebulas Addressbook</a></font>
-    <input type="text" class="form-control"
-      placeholder="Address" name="Address" id=address>
-    </input>
+
     Description: <font size="2">a brief description about the item</font><input type="text" class="form-control"
-      placeholder="Description" name="description" id=description>
+      placeholder="Description" name="description" id=description readonly>
     </input>
     Founder: <font size="2">If you find something, you can leave your name here. Otherwise,leave it as blank.</font><input type="text" class="form-control"
       placeholder="Finder" name="finder" id=founder>
@@ -82,10 +83,11 @@
 
   </div>
 
-  <a id=save href="#" class="btn btn-default btn-lg">
-    <span class="glyphicon glyphicon-update"></span> Register
+  <a id=found href="#" class="btn btn-default btn-lg">
+    <span class="glyphicon glyphicon-update"></span> Update
   </a>
 
+   <div id=result></div>
 
   </div>
 
@@ -93,27 +95,6 @@
 
 </div>
 
-<div class="container-fluid bg-1">
-  <div class="panel-heading">My items:</div>
-  <div class="panel-body">
-
-    <div id=list >
-      <table id=theTable class="table">
-        <thead>
-          <tr>
-            <th>Item HashCode</th>
-            <th>Name</th>
-            <th>Description</th>
-        
-          </tr>
-        </thead>
-        <tbody>
-
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
 
 
   <div class="container-fluid bg-3">
@@ -122,7 +103,7 @@
         </div>
 
 
-
+      <div id=theTable></div>
 
         <div class="row" >
           <div class='col' style="text-align: center;">

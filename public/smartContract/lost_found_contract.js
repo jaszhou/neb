@@ -23,19 +23,48 @@ var myItem = function(text) {
         this.msg = "";
     }
 };
-
-
-
 myItem.prototype = {
     toString: function() {
         return JSON.stringify(this);
     }
 };
 
+var foundItem = function(text) {
+    if (text) {
+        var obj = JSON.parse(text);
+
+        this.hashcode = obj.hashcode; // unique hash for item
+        this.founder = obj.founder; // founder info, account
+        this.msg = obj.msg; // founder may update message here
+
+
+    } else {
+        this.hashcode = "";
+        this.founder = "";
+        this.msg = "";
+    }
+};
+foundItem.prototype = {
+    toString: function() {
+        return JSON.stringify(this);
+    }
+};
+
+
+
 var LostFound = function() {
     LocalContractStorage.defineMapProperty(this, "inventory", {
         parse: function(text) {
             return new myItem(text);
+        },
+        stringify: function(o) {
+            return o.toString();
+        }
+    });
+
+    LocalContractStorage.defineMapProperty(this, "found", {
+        parse: function(text) {
+            return new foundItem(text);
         },
         stringify: function(o) {
             return o.toString();
@@ -85,26 +114,11 @@ LostFound.prototype = {
         myItem.founder = founder;
         myItem.msg = msg;
 
-        // check if item exists
-        var item = this.inventory.get(hashcode);
-        if(item){ // exists
-
-          // this.inventory.del(myItem.hashcode);
-          //this.inventory.del(myItem.hashcode);
-          // this.inventory.del(myItem.hashcode);
-          this.inventory.put(myItem.hashcode, myItem);
-
-        }else{ // only update instead add a new one
 
 
-          this.inventory.put(myItem.hashcode, myItem);
-          this.arrayMap.put(this.size, myItem.hashcode);
-          this.size += 1;
-        }
-
-        // this.inventory.put(myItem.hashcode, myItem);
-        // this.arrayMap.put(this.size, myItem.hashcode);
-        // this.size += 1;
+        this.inventory.put(myItem.hashcode, myItem);
+        this.arrayMap.put(this.size, myItem.hashcode);
+        this.size += 1;
 
         // this.arrayMap.put(this.size, key);
         // this.size +=1;
@@ -113,6 +127,17 @@ LostFound.prototype = {
 
     },
 
+    foundAItem: function(hashcode,founder, msg) { // myItem is a string in JSON format
+
+        foundItem = new foundItem();
+        var hashcode = hashcode.trim();
+
+        foundItem.hashcode = hashcode;
+        foundItem.founder = founder;
+        foundItem.msg = msg;
+
+        this.found.put(hashcode, foundItem);
+    },
     getAll: function() {
 
         var items = [];
@@ -132,6 +157,14 @@ LostFound.prototype = {
             throw new Error("empty key")
         }
         return this.inventory.get(key);
+    },
+
+    getFound: function(key) {
+        key = key.trim();
+        if (key === "") {
+            throw new Error("empty key")
+        }
+        return this.found.get(key);
     }
 
 

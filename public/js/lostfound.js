@@ -22,7 +22,12 @@ var nebPay = new NebPay();
 var callbackUrl = NebPay.config.mainnetUrl;   //如果合约在主网,则使用这个
 
 // MainNet
-var dappAddress = "n1xn2u5faqvVcQwz32gHMRMXUp62TzqkXy3";
+//var dappAddress = "n1xn2u5faqvVcQwz32gHMRMXUp62TzqkXy3";
+ var dappAddress = "n1yo7AGteo3C7BmRWogRoKyraMJSLWSAYv9";
+
+
+// hash 788ca91fb5b2821d5f620783ab00635aa8feff568749ba3b08593bc414d223a7
+// Hash 55e84350860b5165f7d6e195a3677e69aaec2892a0f26072d98dd0b5f90c9f2d
 // var dappAddress = "n1k3aFJWMgX3bs66HuPSvFcKcj6dm9tztaa";
 
 // TestNet
@@ -212,6 +217,26 @@ function find(hashcode) {
          console.log("error:" + err.message)
      })
 }
+function getFound(hashcode) {
+
+     var from = Account.NewAccount().getAddressString();
+     var value = "0";
+     var nonce = "0"
+     var gas_price = "1000000"
+     var gas_limit = "2000000"
+     var callFunction = "getFound";
+     var callArgs = "[\"" + hashcode + "\"]"; //in the form of ["args"]
+     var contract = {
+         "function": callFunction,
+         "args": callArgs
+     }
+     myneb.api.call(from,dappAddress,value,nonce,gas_price,gas_limit,contract).then(function (resp) {
+         cbFoundItem(resp)
+     }).catch(function (err) {
+         //cbSearch(err)
+         console.log("error:" + err.message)
+     })
+}
 
 //return of search,
  function cbSearch(resp) {
@@ -254,6 +279,37 @@ function find(hashcode) {
      }
  }
 
+ function cbFoundItem(resp) {
+     var result = resp.result    ////resp is an object, resp.result is a JSON string
+     console.log("return of rpc call: " + JSON.stringify(result))
+     var resultString = JSON.stringify(result);
+
+     if (resultString.search('"null"') !== -1){
+         $(".add_banner").addClass("hide");
+         $(".result_success").addClass("hide");
+         $(".result_faile").removeClass("hide");
+         $("#new").removeClass("hide");
+         $("#_id").val(account);
+     }else{
+        try{
+             result = JSON.parse(result);
+           }catch (err){
+              console.log("parsing error " + err);
+           }
+
+         if (resultString.search("hashcode") !== -1){
+            $("#founder").val(result.founder);
+             $("#msg").val(result.msg);
+         } else {
+             $(".add_banner").addClass("hide");
+             $(".result_faile").addClass("hide");
+             $("#search_banner").text($("#search_value").val())
+             $("#search_result").text(result)
+             $(".result_success").removeClass("hide");
+         }
+
+     }
+ }
 // 添加信息功能
 $("#add").click(function() {
     $(".result_faile").addClass("hide");
@@ -328,9 +384,77 @@ $("#save").click(function() {
             alert(respString)
         }else if(respString.search("txhash") !== -1){
             //alert("wait for tx result: " + resp.txhash)
+
+            $("#result").text = "Update successfully";
         }
     }
 
+    function cbFound(resp) {
+        console.log("response of push: " + JSON.stringify(resp))
+        var respString = JSON.stringify(resp);
+        if(respString.search("rejected by user") !== -1){
+            clearInterval(intervalQuery)
+            alert(respString)
+        }else if(respString.search("txhash") !== -1){
+            //alert("wait for tx result: " + resp.txhash)
+
+
+        }
+    }
+    $("#found").click(function() {
+            var to = dappAddress;
+            var value = "0";
+            var callFunction = "foundAItem"
+            //var callArgs = "[\"" + $("#search_value").val() + "\",\"" + $("#add_value").val() + "\"]"
+            // var arg1 = $("#search_value").val(),
+            //     arg2 = $("#add_value").val();
+            // var callArgs = JSON.stringify([arg1, arg2]);
+
+
+            console.log("********* call smart contract \"sendTransaction\" *****************")
+            var hashcode = $("#hashcode").val();
+            var founder = $("#founder").val();
+            var msg = $("#msg").val();
+
+            var callArgs = JSON.stringify([hashcode,founder,msg]);
+
+            // var args = "[\""+account+"\""+","+"\""+hashcode+"\""+","+ "\"" + address + "\""+","+"\""+name+"\""+","+"\""+description+"\""+","+"\""+founder+"\""+","+"\""+msg+"\""+"]";
+            // var args = str;
+
+            // console.log("str "+str);
+            console.log("args "+callArgs);
+
+            // callbackUrl="lostfound.html";
+
+            serialNumber = nebPay.call(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+                listener: cbFound,       //设置listener, 处理交易返回信息
+                callback: callbackUrl
+            });
+
+            console.log("serialNumber "+serialNumber);
+
+            intervalQuery = setInterval(function () {
+                funcIntervalQuery();
+            }, 10000);
+        });
+        var intervalQuery
+        function funcIntervalQuery() {
+            var options = {
+                callback: callbackUrl
+            }
+            nebPay.queryPayInfo(serialNumber,options)   //search transaction result from server (result upload to server by app)
+                .then(function (resp) {
+                    console.log("tx result: " + resp)   //resp is a JSON string
+                    var respObject = JSON.parse(resp)
+                    if(respObject.code === 0){
+                        clearInterval(intervalQuery);
+                        // alert(`set ${$("#search_value").val()} succeed!`);
+                    }
+                })
+                .catch(function (err) {
+                    console.log(err);
+                });
+        }
 
 // listen message from contentscript
 // window.addEventListener('message', function(e) {
@@ -349,7 +473,7 @@ $.extend({
         var e = $("<div class=\"row\"><div>" + data.hashcode + "</div><div class=right>——" + data.name + "</div></div>");
 
         // $(theTable).find('tbody').append( "<tr><td id='code'>"+data.hashcode+"</td><td>"+data.name+"</td><td>"+data.description+"</td><td><button id=vote onclick=\"update('"+data.hashcode+"')\">update</button></td></tr>" );
-        $(theTable).find('tbody').append( "<tr><td id='code'>"+"<a href='#' onclick=\"find('"+data.hashcode+"')\">"+data.hashcode+"</a></td><td>"+data.name+"</td><td>"+data.description+"</td><td>"+data.founder+"</td><td>"+data.msg+"</td></tr>" );
+        $(theTable).find('tbody').append( "<tr><td id='code'>"+"<a href='#' onclick=\"find('"+data.hashcode+"');getFound('"+data.hashcode+"')\">"+data.hashcode+"</a></td><td>"+data.name+"</td><td>"+data.description+"</td></tr>" );
 
         return e;
     },
