@@ -222,6 +222,7 @@ function find(hashcode) {
          console.log("error:" + err.message)
      })
 
+     document.getElementById("loader").style.display = "block";
      getFound(hashcode);
 }
 function getFound(hashcode) {
@@ -273,8 +274,8 @@ function getFound(hashcode) {
              $("#name").val(result.name);
              $("#address").val(result.addr);
              $("#description").val(result.description);
-             $("#founder").val(result.founder);
-             $("#msg").val(result.msg);
+             // $("#founder").val(result.founder);
+             // $("#msg").val(result.msg);
          } else {
              $(".add_banner").addClass("hide");
              $(".result_faile").addClass("hide");
@@ -284,20 +285,22 @@ function getFound(hashcode) {
          }
 
      }
+
+
  }
 
  function cbFoundItem(resp) {
      var result = resp.result    ////resp is an object, resp.result is a JSON string
-     console.log("return of rpc call: " + JSON.stringify(result))
+     console.log("return of rpc call from cbFoundItem: " + JSON.stringify(result))
      var resultString = JSON.stringify(result);
 
-     if (resultString.search('"null"') !== -1){
-         $(".add_banner").addClass("hide");
-         $(".result_success").addClass("hide");
-         $(".result_faile").removeClass("hide");
-         $("#new").removeClass("hide");
-         $("#_id").val(account);
-     }else{
+     // if (resultString.search('"null"') !== -1){
+     //     // $(".add_banner").addClass("hide");
+     //     // $(".result_success").addClass("hide");
+     //     // $(".result_faile").removeClass("hide");
+     //     // $("#new").removeClass("hide");
+     //     // $("#_id").val(account);
+     // }else{
         try{
              result = JSON.parse(result);
            }catch (err){
@@ -307,15 +310,18 @@ function getFound(hashcode) {
          if (resultString.search("hashcode") !== -1){
             $("#founder").val(result.founder);
              $("#msg").val(result.msg);
-         } else {
-             $(".add_banner").addClass("hide");
-             $(".result_faile").addClass("hide");
-             $("#search_banner").text($("#search_value").val())
-             $("#search_result").text(result)
-             $(".result_success").removeClass("hide");
          }
+         // else {
+         //     $(".add_banner").addClass("hide");
+         //     $(".result_faile").addClass("hide");
+         //     $("#search_banner").text($("#search_value").val())
+         //     $("#search_result").text(result)
+         //     $(".result_success").removeClass("hide");
+         // }
 
-     }
+     // }
+
+     document.getElementById("loader").style.display = "none";
  }
 // 添加信息功能
 $("#add").click(function() {
